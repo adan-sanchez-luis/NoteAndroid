@@ -32,6 +32,11 @@ class NoteAdapter(
         notifyDataSetChanged()
     }
 
+    fun updateData(notes: List<NoteModel>) {
+        list = notes
+        notifyDataSetChanged()
+    }
+
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val biding = CardviewNotesBinding.bind(view)
 

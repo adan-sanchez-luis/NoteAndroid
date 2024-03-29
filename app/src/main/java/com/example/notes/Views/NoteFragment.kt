@@ -9,23 +9,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.viewModels
 import androidx.room.Room
 import com.example.notes.Data.Dao.NoteDao
 import com.example.notes.Data.NoteDataBase
 import com.example.notes.Data.Repositories.NoteRepository
 import com.example.notes.Utils.RecyclerView.NoteModel
+import com.example.notes.ViewModels.NoteViewModel
 import com.example.notes.databinding.FragmentNoteBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
+@AndroidEntryPoint
 class NoteFragment : Fragment() {
     private var _binding: FragmentNoteBinding? = null
     private val binding get() = _binding!!
-    private var db: NoteDataBase? = null
-    private var dao: NoteDao? = null
-    private var repository: NoteRepository? = null
+    private val viewModel: NoteViewModel by viewModels()
     private var editNote = false
     private var noteModel: NoteModel? = null
 
@@ -62,10 +64,6 @@ class NoteFragment : Fragment() {
             saveNote()
         }
 
-        db = Room.databaseBuilder(requireContext(), NoteDataBase::class.java, "Note_DB").build()
-        dao = db!!.noteDao()
-        repository = NoteRepository(dao!!)
-
         return binding.root
     }
 
@@ -87,17 +85,8 @@ class NoteFragment : Fragment() {
             title = binding.textNote.text.toString().substring(0, length)
         }
 
-        val note = NoteModel(
-            0,
-            title,
-            text,
-            ""
-        )
-
-        MainScope().launch {
-            repository!!.insertNote(note)
-            showDialog()
-        }
+        viewModel.saveNote(title,text)
+        showDialog()
     }
 
     private fun updateNote() {
@@ -107,10 +96,8 @@ class NoteFragment : Fragment() {
             binding.textNote.text.toString(),
             ""
         )
-        MainScope().launch {
-            repository!!.updateNote(note)
-            showDialog()
-        }
+        viewModel.updateNote(note)
+        showDialog()
     }
 
     private fun showDialog() {
@@ -120,11 +107,10 @@ class NoteFragment : Fragment() {
             setMessage("La nota se han guardado correctamente.")
             setPositiveButton("Aceptar") { dialog, which ->
                 // Regresar al Fragment anterior
-                requireActivity().onBackPressed()
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }.create().show()
     }
-
 
     private fun setData(noteModel: NoteModel) {
         binding.titleNote.setText(noteModel.title)

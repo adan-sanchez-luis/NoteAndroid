@@ -9,7 +9,9 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.add
 import com.example.notes.Views.MainFragment
 import com.example.notes.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
